@@ -1,3 +1,11 @@
-- Z80_MMMU.v - mmu 
-- mmu_test.asm - Z80 assembler programm to test mmu
-- test_top.sv - file migrated from [AZ80 project](https://github.com/gdevic/A-Z80). Used for testing purposes of 
+# ZyX 20x4 Memory controller
+
+```
+.
+└── Z80_MMU.v                       # Contains the Verilog module for MMU
+└── mmu_test.asm                    # Z80 assembler program to test MMU
+└── test_top.sv                     # A-Z80 CPU interface file with added MMU, used for testing purposes
+```
+## References
+
+Special thanks to [Goran Devic](https://github.com/gdevic) for creating the [AZ80 project](https://github.com/gdevic/A-Z80)
