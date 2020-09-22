@@ -2,7 +2,7 @@
 // Testbench for the top level design
 //--------------------------------------------------------------
 `include "z80.svh"
-`include "D:/Z80_MMU/Z80_MMU.v"
+`include "Z80_MMU.v"
 
 module test_bench_top(z80_if.tb z);
 
