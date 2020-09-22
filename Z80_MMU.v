@@ -33,7 +33,7 @@ module Z80_MMU  #(parameter FLAGS = 4,
 	assign physical_addr[19:0] = {page_table[page_name][PA-1:0], offset};
 
     assign cpu_data = (~nRD) ? ram_data : 8'bz; // if we are reading, then take data from ram, else set cpu_data to z-state(release the bus)
-    assign ram_data = (~nWR & (physical_addr[19:8] ^ 8'hfe >= 2)) ? cpu_data : 8'bz; //if the CPU is writing and it's not changing the page table, forward the data from it's inner bus to the outer bus. Otherwise, let go of the CPU data bus.
+    assign ram_data = (~nWR & ((physical_addr[19:8] ^ 8'hfe) >= 2)) ? cpu_data : 8'bz; //if the CPU is writing and it's not changing the page table, forward the data from it's inner bus to the outer bus. Otherwise, let go of the CPU data bus.
 
 
 
@@ -41,16 +41,18 @@ module Z80_MMU  #(parameter FLAGS = 4,
 		begin
 		if(~nMREQ)
 		begin
-        	if (physical_addr[19:8] ^ 8'hfe < 2 && ~nWR)
+			// $strobe("	Memmory access: nWR-%b, nRD-%b A-%x, pPage-%x, D-%x, rD-%x", nWR, nRD, cpu_addr, physical_addr[19:8], cpu_data, ram_data);
+        	if (((physical_addr[19:8] ^ 8'hfe) < 2) && ~nWR)
 				begin
 					if(cpu_addr[0] == 0)
 						begin
 
-						$strobe("Page table write: A-%x, D-%x, byte - %b",physical_addr[8:1], cpu_data, physical_addr[0]);
+						$strobe("Page table1 write: A-%x, D-%x, byte - %b",physical_addr[8:1], cpu_data, physical_addr[0]);
 						page_table[physical_addr[8:1]][7:0] = cpu_data[7:0]; //Change the page table entry
 						end
 					else
 						begin
+						$strobe("Page table2 write: A-%x, D-%x, byte - %b",physical_addr[8:1], cpu_data, physical_addr[0]);
 						page_table[physical_addr[8:1]][FLAGS+PA-1:8] = cpu_data[7:0]; //Change the page table entry
 						end	
 				end
@@ -62,7 +64,7 @@ module Z80_MMU  #(parameter FLAGS = 4,
 		else
 			ram_addr[PA+8-1:0] = 20'hz; // $strobe("nMREQ is inactive");
 		end
-	
+		// 02f ^ fe = 0d1
 endmodule
 
 
@@ -106,8 +108,8 @@ module test;
 		.nWR      		   (nWR),
         .ram_data      	   (ram_data),
         .cpu_data      	   (data),
-        .virtual_addr      (virtual_addr),	
-        .physical_addr     (physical_addr)
+        .cpu_addr          (virtual_addr),	
+        .ram_addr     	   (physical_addr)
 		
 	);
 
